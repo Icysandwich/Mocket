@@ -23,13 +23,13 @@ A jar file "mocket-0.1-SNAPSHOT.jar" is generated in "target/".
 To import and use some essential interfaces in the implementation, we
 add "mocket-0.1-SNAPSHOT.jar" in the project's classpath.
 #### Annotate variables and states
-We annotate the key variable and state in your Raft implementation as
+We annotate the key variables and actions in your Raft implementation as
 the following way:
 ```java
 import mocket.annotation.*;
 
 public class RaftNode {
-    @State(“state”)
+    @Variable(“state”)
     private NodeState state = NodeState.STATE_FOLLOWER;
 }
 ```
@@ -37,7 +37,7 @@ public class RaftNode {
 ```java
 import mocket.annotation.*;
 
-@Behavior(“RequestVote”)
+@Action(“RequestVote”)
 private void requestVote(Peer peer) {
     // Collect parameter values
     mocket.runtime.Message m = mocket.instrument.runtime.Interceptor.getParams(this.NodeId, peer.NodeId);
