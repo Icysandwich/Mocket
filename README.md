@@ -1,7 +1,7 @@
 # Mocket
-A tool demo for testing Raft implementations guided by model checking.
-The goal is to find inconsistencies between the TLA+ specification and
-Raft implementations.
+A tool demo for testing distributed systems guided by model checking.
+It is the artifact for EuroSys '23 paper "Model Checking Guided Testing
+for Distributed Systems".
 
 ### Prerequisites
 JDK 8
