@@ -54,11 +54,11 @@ We add TLC command line parameters "-dump dot,colorize,actionlabels
 state" to generate a state.dot file containing the state space graph. 
 Then, you must find the root state `ROOT` and use
 ```python
-py PathGenerator.py $ROOT$ state.dot $OUTPUT_PATH$
+py path_generator.py END_ACTION /path/to/file.dot /path/to/store/paths por
 ```
-to traverse the whole graph. In the directory `OUTPUT_PATH`, you can
-find two files, i.e., `ep.node` storing all nodes with an ID and state
-values, and `ep.edge` storing all paths consisting of edges.
+to traverse the whole graph. In the directory `/path/to/store/paths`, you can
+find two files, i.e., `.node` storing all nodes with an ID and state
+values, and `.edge` storing all paths consisting of edges.
 
 ### Testing
 First, we start Mocket's testbed by running the jar independently.
