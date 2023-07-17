@@ -11,6 +11,8 @@ def usage():
     sys.stdout.write("    Generate all paths from a .dot file created by TLC checking output\n\n")
     sys.stdout.write("USAGE: path_generator.py END_ACTION /path/to/file.dot /path/to/store/paths\n [POR]")
 
+##################################### General functions #########################################
+
 """
 Find the root node for a state space graph
 
@@ -28,6 +30,36 @@ def find_root(diGraph):
             node = n
             break
     return node
+
+"""
+Output paths to files, in which '.node' file stores maps of 
+state ID and contents, and '.edge' file stores paths.
+
+Parameters:
+    graph: the state space networkx graph
+    output: the directory to store path files
+Return:
+    None
+"""
+def output(graph, output):
+    label = nx.get_node_attributes(graph, 'label')
+    node_file = open(output+'.node','w')
+    edge_file = open(output+'.edge','w')
+    # Write all node information
+    for i, node in enumerate(graph):
+        if node.isdigit() or node.startswith('-'):
+            node_file.write(node + ' ' + label[node] + '\n')
+    # Write all edge information
+    for path in PATHS:
+        for i, node in enumerate(path):
+            if i == 0:
+                edge_file.write(node + ' ')
+            else:
+                action = graph[path[i-1]][node]['label']
+                edge_file.write(action + ' ' + node + ' ')
+        edge_file.write('\n')
+
+##################################### Basic Mocket functions #########################################
 
 """
 Add labels for each edge in the state space graph.
@@ -150,7 +182,7 @@ def traverse(diGraph, preNode, curNode, endAction, pathID, POR):
                 first_succ = succ
                 PATHS[pathID].append(succ)
                 #print('Add new node:', succ)
-            # If it is not the first, we genearte a new
+            # If it is not the first, we generate a new
             # path for later traversal
             else:
                 path_num = len(PATHS)
@@ -162,34 +194,6 @@ def traverse(diGraph, preNode, curNode, endAction, pathID, POR):
     if first_succ != None:
         #print('Traverse at:', first_succ)
         traverse(diGraph, curNode, first_succ, endAction, pathID, POR)
-
-"""
-Output paths to files, in which '.node' file stores maps of 
-state ID and contents, and '.edge' file stores paths.
-
-Parameters:
-    graph: the state space networkx graph
-    output: the directory to store path files
-Return:
-    None
-"""
-def output(graph, output):
-    label = nx.get_node_attributes(graph, 'label')
-    node_file = open(output+'.node','w')
-    edge_file = open(output+'.edge','w')
-    # Write all node information
-    for i, node in enumerate(graph):
-        if node.isdigit() or node.startswith('-'):
-            node_file.write(node + ' ' + label[node] + '\n')
-    # Write all edge information
-    for path in PATHS:
-        for i, node in enumerate(path):
-            if i == 0:
-                edge_file.write(node + ' ')
-            else:
-                action = graph[path[i-1]][node]['label']
-                edge_file.write(action + ' ' + node + ' ')
-        edge_file.write('\n')
 
 """
 Main function

@@ -1,7 +1,7 @@
 # Mocket
-A tool demo for testing distributed systems guided by model checking.
-It is the artifact for EuroSys '23 paper "Model Checking Guided Testing
-for Distributed Systems".
+A tool demo for testing Raft implementations guided by model checking.
+The goal is to find inconsistencies between the TLA+ specification and
+Raft implementations.
 
 ### Prerequisites
 JDK 8
@@ -23,7 +23,7 @@ A jar file "mocket-0.1-SNAPSHOT.jar" is generated in "target/".
 To import and use some essential interfaces in the implementation, we
 add "mocket-0.1-SNAPSHOT.jar" in the project's classpath.
 #### Annotate variables and states
-We annotate the key variables and actions in your Raft implementation as
+We annotate the key variable and state in your Raft implementation as
 the following way:
 ```java
 import mocket.annotation.*;
@@ -37,7 +37,7 @@ public class RaftNode {
 ```java
 import mocket.annotation.*;
 
-@Action(“RequestVote”)
+@Behavior(“RequestVote”)
 private void requestVote(Peer peer) {
     // Collect parameter values
     mocket.runtime.Message m = mocket.instrument.runtime.Interceptor.getParams(this.NodeId, peer.NodeId);
@@ -54,11 +54,11 @@ We add TLC command line parameters "-dump dot,colorize,actionlabels
 state" to generate a state.dot file containing the state space graph. 
 Then, you must find the root state `ROOT` and use
 ```python
-py path_generator.py END_ACTION /path/to/file.dot /path/to/store/paths por
+py PathGenerator.py $ROOT$ state.dot $OUTPUT_PATH$
 ```
-to traverse the whole graph. In the directory `/path/to/store/paths`, you can
-find two files, i.e., `.node` storing all nodes with an ID and state
-values, and `.edge` storing all paths consisting of edges.
+to traverse the whole graph. In the directory `OUTPUT_PATH`, you can
+find two files, i.e., `ep.node` storing all nodes with an ID and state
+values, and `ep.edge` storing all paths consisting of edges.
 
 ### Testing
 First, we start Mocket's testbed by running the jar independently.
