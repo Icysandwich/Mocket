@@ -173,7 +173,7 @@ public class ConnectionManager {
             try {
                 InetSocketAddress electionAddr = new InetSocketAddress(
                         this.host.substring(0, this.host.indexOf(":")),
-                        Integer.parseInt(this.host.substring(this.host.indexOf(":"))));
+                        Integer.parseInt(this.host.substring(this.host.indexOf(":") + 1)));
                 if (logger.isDebugEnabled()) {
                     logger.debug("Opening channel to Mocket server on", this.host);
                 }
@@ -185,11 +185,11 @@ public class ConnectionManager {
                 initiateConnection(sock);
             } catch (UnresolvedAddressException e) {
                 logger.warn("Cannot open channel to " + sid
-                        + " at election address " + host, e);
+                        + " at address " + host, e);
                 throw e;
             } catch (IOException e) {
                 logger.warn("Cannot open channel to " + sid
-                                + " at election address " + host,
+                                + " at address " + host,
                         e);
             }
         } else {
