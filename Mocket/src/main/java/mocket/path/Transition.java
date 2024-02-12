@@ -6,7 +6,7 @@ public class Transition {
     public int sid;
     public Action action; // The action that results in this state
     public State state;
-    private boolean bChecked = false;
+    private boolean aChecked = false;
     private boolean sChecked = false;
 //    String ID;
 
@@ -29,23 +29,30 @@ public class Transition {
     }
 
     public boolean isInitialState() {
-        return action.getType().equals(ActionType.NULL);
+        return action.getActionType().equals(ActionType.NULL);
     }
 
     public boolean isActionExecuted() {
-        return this.bChecked;
+        return this.aChecked;
     }
 
-    public void executeAction() {
-        this.bChecked = true;
+    public void executed() {
+        this.aChecked = true;
+    }
+
+    // Only for inital state checking
+    public void checked() {
+        if (!aChecked)
+            this.aChecked = true; 
+        this.sChecked = true;
     }
 
     public boolean isStateChecked() {
-        if (!bChecked)
+        if (!aChecked)
             return false;
         // We do not check states after client requests and injected faults
         else if (action.isClientRequest() || action.isExternalFault())
-            return bChecked;
+            return aChecked;
         else
             return sChecked;
     }
@@ -55,26 +62,7 @@ public class Transition {
         if(isInitialState()) {
             return "Initial state";
         } else {
-            switch (action.getType()){
-                case RAFT_Timeout:
-                    return "Timeout at node";
-                case RAFT_RequestVote:
-                    return "Send a vote request to";
-                case RAFT_HandleRequestVoteRequest:
-                    return "Reply a vote request";
-                case RAFT_HandleRequestVoteResponse:
-                    return "Receive a vote response";
-                case RAFT_BecomeLeader:
-                    return "Become the leader";
-                case ZK_SendMessage:
-                    return "SendWorker send out a message";
-                case ZK_ReceiveMessage:
-                    return "ReceiveWorker receive in a message";
-                case ZK_HandleMessage:
-                    return "Main while loop process a message";
-                default:
-                    return "ERROR! UNKNOWN BEHAVIOR!";
-            }
+            return this.action.getActionType().getType() + " at Node " + action.getSid();
         }
     }
 }

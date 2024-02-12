@@ -17,11 +17,18 @@ public class Configuration {
     private boolean help = false;
 
     @Parameter(
-            names = "--rootDir",
-            description = "The root directory of SUT.",
+            names = "--config",
+            description = "The configuration file path.",
+            required = false
+    )
+    private String config = "./config/config.properties";
+
+    @Parameter(
+            names = "--workspace",
+            description = "The workspace directory.",
             required = true
     )
-    private String rootDir = "";
+    private String workspace = "";
 
     @Parameter(
             names = "--SUT",
@@ -52,17 +59,24 @@ public class Configuration {
     private String cluster = "";
 
     @Parameter(
-            names = "--start",
-            description = "The script file of start a SUT node.",
+            names = "--startCluster",
+            description = "The script file of starting the SUT cluster.",
             required = true
     )
-    private String startScript = "";
+    private String startCluster = "";
 
     @Parameter(
-            names = "--paths",
+            names = "--stopCluster",
+            description = "The script file of stopping the SUT cluster.",
+            required = true
+    )
+    private String stopCluster = "";
+
+    @Parameter(
+            names = "--inputs",
             description = "The directory storing path files."
     )
-    private String paths = "./outputs";
+    private String inputs = "./outputs";
 
     @Parameter(
             names = "--faults",

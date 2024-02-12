@@ -3,57 +3,32 @@ package mocket.path.zk;
 import mocket.path.Action;
 import mocket.path.ActionType;
 
-import java.util.HashSet;
+public class ActionImpl extends Action {
 
-public class ActionImpl implements Action {
-
-    ActionType type = ActionType.NULL;
-    HashSet<String> parameters = null;
-
-    /**
-     * Initialized a ZK_ReceiveMessage behavior
-     * @param m
-     */
-    public ActionImpl(Message m) {
-        this.type = ActionType.ZK_ReceiveMessage;
-        this.parameters = new HashSet<>();
+    ActionImpl() {
+        super();
     }
 
-    /**
-     * Initialized a ZK_SendMessage / ZK_HandleMessage behavior
-     * @param type
-     * @param sid
-     */
-    public ActionImpl(ActionType type, int sid) {
-        this.type = type;
-        HashSet<String> params = new HashSet<>();
-        params.add(String.valueOf(sid));
-        this.parameters = params;
+    ActionImpl(ActionType type, int nid) {
+        super(type, nid);
     }
 
-    @Override
-    public ActionType getType() {
-        return this.type;
+    ActionImpl(ActionType type, int sendNode, Message msg) {
+        super(type, sendNode, msg);
     }
 
-    @Override
-    public HashSet<String> getParameters() {
-        return parameters;
+
+    ActionImpl(ActionType type, Message msg, int receiveNode) {
+        super(type, msg, receiveNode);
     }
 
-    @Override
-    public boolean compare(Action b) {
-        return false;
-    }
 
-    @Override
     public boolean isSingleNodeAction() {
         return false;
     }
 
-    @Override
     public boolean isMessageRelatedAction() {
-        ActionType t = this.getType();
+        ActionType t = this.getActionType();
         if (t.equals(ActionType.ZK_SendMessage) ||
                 t.equals(ActionType.ZK_HandleMessage) ||
                 t.equals(ActionType.ZK_ReceiveMessage)) {
@@ -62,12 +37,10 @@ public class ActionImpl implements Action {
         return false;
     }
 
-    @Override
     public boolean isClientRequest() {
         return false;
     }
 
-    @Override
     public boolean isExternalFault() {
         return false;
     }

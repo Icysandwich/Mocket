@@ -1,6 +1,5 @@
 package mocket.path.zk;
 
-import guru.nidi.graphviz.model.MutableGraph;
 import mocket.path.Graph;
 import mocket.path.Transition;
 import mocket.path.ActionType;
@@ -10,7 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class GraphImpl implements Graph {
+public class GraphImpl extends Graph {
 
     public Map<String, State> nodes = new HashMap<String, State>();
 
@@ -70,17 +69,6 @@ public class GraphImpl implements Graph {
     }
 
     private State readState(String state) throws Exception {
-
         return null;
-    }
-
-    @Override
-    public int countPath(MutableGraph g) {
-        return 0;
-    }
-
-    @Override
-    public void printPath(Transition root) {
-
     }
 }

@@ -1,7 +1,5 @@
 package mocket.path.zk;
 
-import mocket.Mocket;
-
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -10,7 +8,6 @@ import java.util.Set;
 public class State implements mocket.path.State {
 
     String stateId;
-    int nodeNum = Mocket.nodeNum;
 
     public class Vote{
         String leader;
@@ -69,5 +66,19 @@ public class State implements mocket.path.State {
     @Override
     public String getStateId() {
         return stateId;
+    }
+
+    @Override
+    public State updateState(int sid, String[] stateValues) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'updateState'");
+    }
+
+
+
+    @Override
+    public mocket.path.State copyState() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'copyState'");
     }
 }

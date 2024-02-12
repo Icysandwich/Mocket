@@ -8,6 +8,7 @@ import java.util.HashMap;
 
 public class PreMain {
 
+    public static boolean DEBUG = true;
     public static Variables vars;
 
     static{
@@ -41,15 +42,26 @@ public class PreMain {
     private static void setOptions(HashMap<String, String> args) {
         try {
             for (String opt : args.keySet()) {
-                if (opt.equals("Host"))
-                    Interceptor.hostAddress = args.get(opt);
-                else if (opt.equals("Port"))
-                    Interceptor.port = Integer.parseInt(args.get(opt));
-                else if (opt.equals("sid"))
-                    Interceptor.sid = Integer.parseInt(args.get(opt));
-                else if (opt.equals("MethodVariable"))
-                    // TODO: Add method variable handling
-                    continue;
+                switch(opt) {
+                    case "SUT":
+                        Interceptor.SUT = args.get(opt);
+                        break;
+                    case "Host":
+                        Interceptor.myHost = args.get(opt);
+                        break;
+                    case "MocketHost":
+                        Interceptor.hostAddress = args.get(opt);
+                        break;
+                    case "Port":
+                        Interceptor.port = Integer.parseInt(args.get(opt));
+                        break;
+                    case "sid":
+                        Interceptor.sid = Integer.parseInt(args.get(opt));
+                        break;
+                    case "MethodVariable":// TODO: Add method variable handling
+                    default:
+                        break;
+                }
             }
         } catch (Exception e) {
             System.err.println("Parameter handling error: " + e.getMessage());

@@ -1,7 +1,7 @@
 # Mocket
-A tool demo for testing Raft implementations guided by model checking.
+A tool demo for testing distributed system implementations guided by model checking.
 The goal is to find inconsistencies between the TLA+ specification and
-Raft implementations.
+distributed system implementations.
 
 ### Prerequisites
 JDK 8
@@ -11,7 +11,7 @@ Maven 3.6.2
 Python 3
 
 ### Build Mocket
-We enter the main directory, and build the project by
+We enter the directory Mocket, and build the project by
 ```bash
 mvn clean package
 ```
@@ -21,7 +21,7 @@ A jar file "mocket-0.1-SNAPSHOT.jar" is generated in "target/".
 ### Preprocessing
 
 To import and use some essential interfaces in the implementation, we
-add "mocket-0.1-SNAPSHOT.jar" in the project's classpath.
+add "mocket-0.2-SNAPSHOT.jar" in the project's classpath.
 #### Annotate variables and states
 We annotate the key variable and state in your Raft implementation as
 the following way:
@@ -29,7 +29,7 @@ the following way:
 import mocket.annotation.*;
 
 public class RaftNode {
-    @Variable(“state”)
+    @MocketVariable(“state”)
     private NodeState state = NodeState.STATE_FOLLOWER;
 }
 ```
@@ -37,7 +37,7 @@ public class RaftNode {
 ```java
 import mocket.annotation.*;
 
-@Behavior(“RequestVote”)
+@MocketAction(“RequestVote”)
 private void requestVote(Peer peer) {
     // Collect parameter values
     mocket.runtime.Message m = mocket.instrument.runtime.Interceptor.getParams(this.NodeId, peer.NodeId);
@@ -47,21 +47,24 @@ private void requestVote(Peer peer) {
             "currentTerm",
             raftLog.getLastLogIndex(),
             getLastLogTerm());
+}
 ```
 
 #### Generate testing guidance by model checking results
 We add TLC command line parameters "-dump dot,colorize,actionlabels
 state" to generate a state.dot file containing the state space graph. 
-Then, you must find the root state `ROOT` and use
-```python
-py PathGenerator.py $ROOT$ state.dot $OUTPUT_PATH$
+Then, we traverse the whole graph and generate test cases:
+```bash
+python path_generator.py END_ACTION /path/to/file.dot /path/to/store/paths [POR]
 ```
-to traverse the whole graph. In the directory `OUTPUT_PATH`, you can
-find two files, i.e., `ep.node` storing all nodes with an ID and state
-values, and `ep.edge` storing all paths consisting of edges.
 
 ### Testing
-First, we start Mocket's testbed by running the jar independently.
+First, we add the jar as a java agent in the SUT initialization script to perform the runtime instrumentation.
+```bash
+$JAVA_HOME/bin/java  -Xbootclasspath/a:mocket-0.1-SNAPSHOT.jar -javaagent:mocket-0.1-SNAPSHOT.jar SUT.main.class
+```
+
+Then, we start Mocket's testing server by running the jar independently.
 ```bash
 java -jar mocket-0.1-SNAPSHOT.jar -rootDir=$ROOT_DIR$       #The root directory of SUT.
                                   -port=$PORT$              #The port used by Mocket.
@@ -75,10 +78,5 @@ java -jar mocket-0.1-SNAPSHOT.jar -rootDir=$ROOT_DIR$       #The root directory 
                                                   $LC$:$FILE$
 ```
 
-Then, to perform the runtime instrumentation, we add the jar as a java agent in the SUT initialization script.
-```bash
-$JAVA_HOME/bin/java  -Xbootclasspath/a:mocket-0.1-SNAPSHOT.jar -javaagent:mocket-0.1-SNAPSHOT.jar SUT.main.class
-```
-
-Finally, the testing can be automatically performed to find inconsistencies between the TLA+ specification and
-Raft implementations.
+Finally, Mocket can automatically test each generated case to find inconsistencies between the TLA+ specification and
+implementations.

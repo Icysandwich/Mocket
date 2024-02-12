@@ -1,3 +1,4 @@
 Manifest-Version: 1.0
 Created-By: Dong WANG
+Main-Class: mocket.Main
 Premain-Class: mocket.instrument.PreMain

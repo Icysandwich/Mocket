@@ -1,22 +1,50 @@
 package mocket.instrument;
 
 import org.objectweb.asm.AnnotationVisitor;
+import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
+import org.objectweb.asm.Opcodes;
+
 import mocket.Configuration;
+import mocket.instrument.runtime.MappedVariable;
 
 public class VariableFieldScanner extends FieldVisitor {
+
+    private ClassVisitor cv;
+    private FieldVisitor fv;
+
+    private String fieldName;
+    private Object fieldValue;
+
+    private String owner;
+    private String descriptor;
+    private String signature;
 
     private boolean isVariable = false;
 
     private String TLAName = "";
 
-    public VariableFieldScanner() {
-        super(Configuration.ASM_VERSION);
+    public VariableFieldScanner(ClassVisitor cv, FieldVisitor fv, 
+            String owner, String name, String descriptor, String signature, Object value) {
+        super(Configuration.ASM_VERSION, fv);
+        this.cv = cv;
+        this.fv = fv;
+        this.owner = owner;
+        this.descriptor = descriptor;
+        this.signature = signature;
+        this.fieldName = name;
+        this.fieldValue = value;
     }
 
     @Override
     public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-        return new VariableFieldValueScanner();
+        if (desc.equals("Lmocket/annotation/MocketVariable;")) {
+            isVariable = true;
+            return new VariableFieldValueScanner();
+        } else {
+            return fv.visitAnnotation(desc, visible);
+        }
+
     }
 
     class VariableFieldValueScanner extends AnnotationVisitor {
@@ -26,18 +54,16 @@ public class VariableFieldScanner extends FieldVisitor {
 
         @Override
         public void visit(String name, Object value) {
-            if(name.equals("Variable")) {
-                isVariable = true;
-                TLAName = value.toString();
-                if(PreMain.vars.hasTLAVariable(TLAName)) {
-                    System.out.println("[ERROR!] Duplicate TLA variable name:" + TLAName);
-                }
-                /**
-                 * Record the field name: <TLA+ Variable name, Field name>.
-                 * Field name is initialized in {@link MocketClassVisitor#visitField}.
-                 */
-                PreMain.vars.updateVariableName(TLAName, null);
-            }
+            isVariable = true;
+            TLAName = value.toString();
+            // Initialize and store field name.
+            PreMain.vars.updateVariableName(TLAName, new MappedVariable(owner, fieldName, descriptor));
+            /**
+             * Create a shadow field for the mapped TLA+ variable,
+             * so that we could collect variable values without affecting the system
+             * execution.
+             */
+            cv.visitField(Opcodes.ACC_STATIC, "MOCKET$" + fieldName, descriptor, signature, fieldValue);
             super.visit(name, value);
         }
     }
@@ -47,7 +73,7 @@ public class VariableFieldScanner extends FieldVisitor {
     }
 
     public String getTLAName() {
-        if(isVariable) {
+        if (isVariable) {
             return TLAName;
         } else {
             return "";

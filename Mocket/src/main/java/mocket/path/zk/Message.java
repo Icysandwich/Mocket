@@ -1,6 +1,11 @@
 package mocket.path.zk;
+public class Message extends mocket.path.Message{
+    
+    public Message(String messageType, int sourceNode, int destinationNode, int messageValue) {
+        super(messageType, sourceNode, destinationNode, messageValue);
+        //TODO Auto-generated constructor stub
+    }
 
-public class Message {
     String src;
     String dst;
     String leader;

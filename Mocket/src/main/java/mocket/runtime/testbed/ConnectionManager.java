@@ -5,10 +5,12 @@ import org.slf4j.LoggerFactory;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.BufferUnderflowException;
 import java.nio.channels.UnresolvedAddressException;
@@ -268,7 +270,7 @@ public class ConnectionManager {
                     ss = new ServerSocket();
                     ss.setReuseAddress(true);
                     InetSocketAddress addr = new InetSocketAddress(port);
-                    logger.info("My election bind port: " + addr.toString());
+                    logger.info("The connection manager listening port: " + addr.toString());
                     setName("Mocket CM");
                     ss.bind(addr);
                     while (!shutdown) {
@@ -429,12 +431,11 @@ public class ConnectionManager {
                         if(b != null){
                             send(b);
                         }
-                    } catch (InterruptedException e) {
-                        logger.warn("Interrupted while waiting for message on queue",
-                                e);
+                    } catch (InterruptedException | SocketException e) {
+                        logger.debug("Exiting SendWorker for id [{}]", sid);
                     }
                 }
-            } catch (Exception e) {
+            } catch (IOException e) {
                 logger.warn("Exception when using channel: for id " + sid, " error = " + e);
             }
             this.finish();
@@ -511,8 +512,12 @@ public class ConnectionManager {
                     ByteBuffer message = ByteBuffer.wrap(msgArray);
                     addToRecvQueue(new Message(message.duplicate(), sid));
                 }
-            } catch (Exception e) {
-                logger.warn("Connection broken for id " + sid + ", error = " , e);
+            } catch (SocketException e) {
+                logger.debug("Exiting SenderWorker for id [{}]", sid);
+            } catch (EOFException e) {
+                logger.debug("Received wrong server packet ", e);
+            } catch (IOException e) {
+                logger.warn("Connection broken for id " + sid + ", error = " + e);
             } finally {
                 logger.warn("Interrupting SendWorker");
                 sw.finish();
@@ -601,8 +606,17 @@ public class ConnectionManager {
      */
     public void softHalt() {
         for (SendWorker sw : senderWorkerMap.values()) {
-            logger.debug("Halting sender: " + sw);
+            logger.info("Halting sender: " + sw);
             sw.finish();
         }
+    }
+
+    public void reset() {
+        logger.info("Reset all connections");
+        softHalt();
+
+        recvQueue.clear();
+        queueSendMap.clear();
+        senderWorkerMap.clear();
     }
 }
